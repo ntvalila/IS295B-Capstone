@@ -1,0 +1,292 @@
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><span class=text-muted><strong>PATH</strong> |</span>   
+        Collection:<a href="/admin/collections?id=<%= selectedCollection.id %>&view=collection_overview" class="text-maroon text-decoration-none">
+          <%= selectedCollection.name %>
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        Box:<a href="/admin/collections?id=<%= selectedCollection.id %>&boxId=<%= box.id %>&view=box_details" class="text-maroon text-decoration-none">
+          <%= box.box_name %>
+        </a>
+      </li>
+      <li class="breadcrumb-item active text-muted">Folder: <%= folder.folder_name %></li>
+    </ol>
+  </nav>
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="color:maroon;">Folder: <strong><%= folder.folder_name %></strong></h2>
+    </div>
+    
+    <div class="d-flex gap-2">
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-sm btn-outline-secondary px-3 edit-folder-btn" 
+                data-folder="<%- JSON.stringify(folder) %>" type="button">
+          <i class="bi bi-pencil me-1"></i> Edit Folder
+        </button>
+        <button class="btn btn-sm btn-outline-danger px-3" 
+              data-bs-toggle="modal" 
+              data-bs-target="#deleteFolderModal">
+        <i class="bi bi-trash me-1"></i> Delete Folder
+      </button>
+      </div>
+  
+      <button class="btn btn-sm btn-maroon px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addItemModal" onclick="prepareAddItem()">
+        <i class="bi bi-file-earmark-plus me-1"></i> Add Item to Folder
+      </button>
+    </div>
+  </div>
+  
+  <!-- Item List -->
+
+  <% 
+  const mediumLabels = {
+    1: 'Document',
+    2: 'Book',
+    3: 'Image',
+    4: 'Pamphlet',
+    5: 'Magazine',
+    6: 'Audio/Video'
+  };
+ %>
+
+  <div class="container grid">
+  <div class="row g-4">
+
+  <div class="col-lg-8">
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr class="small text-uppercase text-muted">
+            <th>Order No.</th>
+            <th>Item Title</th>
+            <th>Document Date</th>
+            <th>Medium</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (folder.items && folder.items.length > 0) { %> 
+            <% folder.items.forEach(item => { %>
+            <tr>
+              <td class="ps-4">#<%= item.item_physical_order %></td>
+              <td>
+                <a href="/admin/collections?id=<%= selectedCollection.id %>&boxId=<%= box.id %>&folderId=<%= folder.id %>&itemId=<%= item.item_id %>&view=item-details" 
+                  class="fw-bold text-dark text-decoration-none">
+                  <i class="bi bi-file-earmark-text text-maroon me-2 fs-5"></i><%= item.item_title %>
+                  </a>
+              </td>
+              <td class="small"><%= item.item_document_date || 'N/A' %></td>
+              <td><span class="badge bg-light text-dark border"><%= mediumLabels[item.item_medium_id] %></span></td>
+            </tr>
+            <% }) %> 
+          <% } else { %>
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-2 d-block mb-2 opacity-25"></i>
+                This folder is currently empty.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+
+  <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Restriction Level</h6>
+        <p class="small text-dark mb-4"><%= box.box_restriction_id == 0 ? 'Public' : (box.box_restriction_id == 1 ? 'Confidential' : 'Restricted') %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Folder Name</h6>
+        <p class="small text-dark mb-4"><%= folder.folder_name %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Folder Description</h6>
+        <p class="small text-dark mb-4">
+          Inside Folder: <strong class="text-dark"> <%= folder.folder_name %></strong>
+          <span class="ms-2 badge bg-light text-dark border"><%= folder.items.length %> Items</span>
+        </p>
+ 
+        </div></div>
+  
+  
+  
+  <!-- ADD ITEM MODAL -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-maroon">Add Item to Box to <%= selectedCollection.name %> / <%= box.box_name %> / <%= folder.folder_name %></h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form
+        action="/admin/items/add"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>" />
+        <input type="hidden" name="box_id" value="<%= boxId %>" />
+        <input type="hidden" name="folder_id" value="<%= folder.id %>" />
+        <input type="hidden" name="restriction_id" value="<%= box.box_restriction_id %>" />
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Title</label>
+            <input type="text" name="title" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Creator</label>
+            <input type="text" name="creator" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Description</label>
+            <textarea
+              name="description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-4">
+              <label class="small fw-bold">Physical Order</label>
+              <input
+                type="number"
+                name="physical_order"
+                class="form-control"
+              />
+            </div>
+            <div class="col-4">
+              <label class="small fw-bold">Medium</label>
+              <select name="medium_id" class="form-select">
+                <option value="1">Document</option>
+                <option value="2">Book</option>
+                <option value="3">Image</option>
+                <option value="4">Pamphlet</option>
+                <option value="5">Magazine</option>
+              </select>
+            </div>
+
+            <div class="col-4">
+              <label class="small fw-bold">Extent</label>
+              <input
+                type="text"
+                name="extent"
+                class="form-control"
+              />
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold small">Upload File</label>
+            <input type="file" name="item_file" class="form-control" />
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold small">Document Date</label>
+            <input type="date" name="document_date" class="form-control" />
+          </div>
+        </div></div>
+        <div class="modal-footer border-0">
+          <button type="submit" class="btn btn-maroon text-white px-4">
+            Save Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  
+  <div class="modal fade" id="editFolderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold">Update Folder</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="/admin/folders/update" method="POST">
+          <input type="hidden" name="folder_id" id="edit_folder_id">
+          <input type="hidden" name="box_id" value="<%= box.id %>">
+          <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>">
+          
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="small fw-bold">Folder Name</label>
+              <input type="text" name="folder_name" id="edit_folder_name" class="form-control" required>
+            </div>
+            <div class="mb-0">
+              <label class="small fw-bold">Description</label>
+              <textarea name="description" id="edit_folder_description" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-dark px-4">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+<div class="modal fade" id="deleteFolderModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold small">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/folders/delete" method="POST">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger display-4 mb-3"></i>
+          <p class="mb-0">Are you sure you want to delete <strong><%= folder.folder_name %></strong>?</p>
+          <p class="text-muted small"><%= folder.items.length %> items inside this folder will be affected.</p>
+          <input type="hidden" name="folderId" value="<%= folder.id %>">
+          <input type="hidden" name="boxId" value="<%= box.id %>">
+          <input type="hidden" name="collectionId" value="<%= selectedCollection.id %>">
+        </div>
+        <div class="modal-footer border-0 pt-0 justify-content-center">
+          <button type="button" class="btn btn-light btn-sm px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger btn-sm px-4">Delete Permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  
+  <script>
+    function prepareAddItem() {
+      document.getElementById("itemModalLabel").innerText = "Add Item to Folder";
+      document.getElementById("itemForm").action = "/admin/items/add";
+      document.getElementById("item_id").value = "";
+      document.getElementById("itemForm").reset();
+      document.getElementById("file_edit_msg").classList.add("d-none");
+    }
+  
+    function openEditItemModal(item) {
+      document.getElementById("itemModalLabel").innerText = "Update Item Details";
+      document.getElementById("itemForm").action = "/admin/items/update";
+      document.getElementById("file_edit_msg").classList.remove("d-none");
+      
+      document.getElementById("item_id").value = item.id;
+      document.getElementById("item_title").value = item.title || "";
+      document.getElementById("item_creator").value = item.creator || item.author || "";
+      document.getElementById("item_extent").value = item.extent || "";
+      document.getElementById("item_medium_id").value = item.medium_id || "";
+      document.getElementById("item_restriction_id").value = item.restriction_id;
+      document.getElementById("item_description").value = item.description || "";
+      
+      new bootstrap.Modal(document.getElementById('addItemModal')).show();
+    }
+  
+    function openEditFolderModal(folder) {
+      document.getElementById("edit_folder_id").value = folder.id;
+      document.getElementById("edit_folder_name").value = folder.folder_name;
+      document.getElementById("edit_folder_description").value = folder.description || "";
+      
+      new bootstrap.Modal(document.getElementById('editFolderModal')).show();
+    }
+  </script>

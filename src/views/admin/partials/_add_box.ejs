@@ -1,0 +1,101 @@
+<% 
+  /* 
+     1. Get the parent's level string.
+     2. Define 'Locked' as either 'Restricted' OR 'Confidential'.
+  */
+  const parentLevel = selectedCollection.security_level; 
+  const isParentLocked = (parentLevel === 'Confidential' || parentLevel === 'Restricted');
+  
+  // Mapping for the default selection
+  let defaultId = "1"; // Public
+  if (parentLevel === 'Restricted') defaultId = "2";
+  if (parentLevel === 'Confidential') defaultId = "3";
+
+  // Calculate suggested physical order (next in sequence)
+  const nextOrder = (selectedCollection.boxes && selectedCollection.boxes.length > 0) 
+    ? Math.max(...selectedCollection.boxes.map(b => b.physical_order || 0)) + 1 
+    : 1;
+%>
+
+<h2 class="fw-bold mb-4" style="font-family: 'Georgia', serif">
+  Add Box in <%= selectedCollection.name %>
+</h2>
+
+<div class="card border-0 shadow-sm p-4">
+  <form action="/admin/boxes/add" method="POST">
+    <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>" />
+
+    <div class="row mb-4">
+      <!-- Box Name -->
+      <div class="col-md-6">
+        <label class="form-label small fw-bold text-uppercase text-muted">Box Name</label>
+        <input type="text" name="name" class="form-control bg-light border-0 py-2" placeholder="e.g. Manuscript Correspondence 1880" required />
+      </div>
+
+      <!-- Box ID / Number -->
+      <div class="col-md-3">
+        <label class="form-label small fw-bold text-uppercase text-muted">Box ID / Number</label>
+        <input type="text" name="box_number" class="form-control bg-light border-0 py-2" placeholder="B-101" required />
+      </div>
+
+      <!-- Physical Order -->
+      <div class="col-md-3">
+        <label class="form-label small fw-bold text-uppercase text-muted">Physical Order</label>
+        <input 
+          type="number" 
+          name="physical_order" 
+          class="form-control bg-light border-0 py-2" 
+          value="<%= nextOrder %>" 
+          min="1" 
+          required 
+        />
+        <div class="form-text" style="font-size: 0.7rem">Order as appears in physical arrangement.</div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-4">
+      <label class="form-label small fw-bold text-uppercase text-muted">Description</label>
+      <textarea name="description" class="form-control bg-light border-0" rows="4" placeholder="Summarize the historical significance and contents..."></textarea>
+    </div>
+
+    <!-- Security Restriction -->
+    <div class="mb-4">
+      <label class="form-label small fw-bold text-maroon text-uppercase">Restriction Level</label>
+
+      <% if (isParentLocked) { %>
+        <!-- DISABLED STATE: Parent is Restricted or Confidential -->
+        <select class="form-select bg-secondary-subtle border-0 text-muted" disabled>
+          <option value="2" <%= parentLevel === 'Restricted' ? 'selected' : '' %>>Exclusive</option>
+          <option value="3" <%= parentLevel === 'Confidential' ? 'selected' : '' %>>Confidential</option>
+        </select>
+        
+        <!-- Crucial: The actual value sent to the database -->
+        <input type="hidden" name="restriction_id" value="<%= defaultId %>" />
+        
+        <div class="form-text mt-2 text-danger" style="font-size: 0.75rem">
+          <i class="bi bi-lock-fill me-1"></i>
+          This field is locked because the parent collection is <strong><%= parentLevel %></strong>.
+        </div>
+
+      <% } else { %>
+        <!-- ENABLED STATE: Parent is Public -->
+        <select name="restriction_id" class="form-select bg-light border-0">
+          <option value="1" selected>Public</option>
+          <option value="2">Exclusive</option>
+          <option value="3">Confidential</option>
+        </select>
+        <div class="form-text mt-2" style="font-size: 0.75rem">
+          <i class="bi bi-unlock-fill me-1"></i>
+          Parent collection is Public. You may elevate restrictions for this box if needed.
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end gap-2 border-top pt-4">
+      <a href="/admin/collections?id=<%= selectedCollection.id %>&view=overview" class="btn btn-light px-4">Cancel</a>
+      <button type="submit" class="btn btn-maroon px-5 shadow-sm">Add Box</button>
+    </div>
+  </form>
+</div>

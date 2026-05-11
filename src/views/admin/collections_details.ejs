@@ -1,0 +1,134 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid vh-100">
+  <div class="row h-100">
+    
+    <!-- Sidebar -->
+    <aside class="col-md-3 bg-white border-end py-4 overflow-auto sidebar-scroll">
+      <div class="px-3 mb-3 d-flex justify-content-between align-items-center">
+        <h6 class="small fw-bold text-muted text-uppercase mb-0">Digital Archives Collections</h6>
+        <a href="/admin/collections?view=add-collection" class="btn btn-sm btn-maroon p-0 px-2">
+          <i class="bi bi-plus-lg me-1"></i> New
+        </a>
+      </div>
+    
+      <div class="tree-container px-2">
+        <% if (locals.collections && collections.length > 0) { %>
+          <% collections.forEach(coll => { %>
+          <details <%= (selectedCollection && selectedCollection.id === coll.id) ? 'open' : '' %> class="mb-2">
+            <summary class="small rounded p-0 overflow-hidden <%= (selectedCollection && selectedCollection.id === coll.id && view === 'overview') ? 'bg-light' : '' %>">
+              <a href="/admin/collections?id=<%= coll.id %>&view=collection_overview" 
+                 class="d-block w-100 py-2 px-2 text-decoration-none text-reset <%= (selectedCollection && selectedCollection.id === coll.id) ? 'text-maroon fw-bold' : '' %>">
+                <i class="bi bi-collection me-2 <%= (selectedCollection && selectedCollection.id === coll.id) ? 'text-maroon' : 'text-muted' %>"></i>
+                <%= coll.name %>
+              </a>
+            </summary>
+    
+            <div class="ms-3 border-start ps-2 mt-1">
+              <% (coll.boxes || []).forEach(bx => { %>
+              <details <%= (locals.boxId && Number(boxId) === bx.id) ? 'open' : '' %> class="mb-1">
+                <summary class="small rounded p-0 overflow-hidden <%= (locals.boxId && Number(boxId) === bx.id && view === 'box_details') ? 'bg-light' : '' %>">
+                  <a href="/admin/collections?id=<%= coll.id %>&boxId=<%= bx.id %>&view=box_details" 
+                     class="d-block w-100 py-1 px-2 text-decoration-none text-reset <%= (locals.boxId && Number(boxId) === bx.id) ? 'text-maroon fw-bold' : 'text-secondary' %>">
+                    <i class="bi bi-archive-fill me-2 text-muted"></i><%= bx.box_name %>
+                  </a>
+                </summary>
+    
+                <div class="ms-3 border-start ps-2 mt-1">
+                  <% (bx.folders || []).forEach(fld => { %>
+                  <details <%= (locals.folderId && Number(folderId) === fld.id) ? 'open' : '' %> class="mb-1">
+                    <summary class="small rounded p-0 overflow-hidden <%= (locals.folderId && Number(folderId) === fld.id && view === 'folder-details') ? 'bg-light' : '' %>">
+                      <a href="/admin/collections?id=<%= coll.id %>&boxId=<%= bx.id %>&folderId=<%= fld.id %>&view=folder-details" 
+                         class="d-block w-100 py-1 px-2 text-decoration-none text-reset <%= (locals.folderId && Number(folderId) === fld.id) ? 'text-maroon fw-bold' : 'text-secondary' %>">
+                        <i class="bi bi-folder2 me-2 <%= (locals.folderId && Number(folderId) === fld.id) ? 'text-maroon' : '' %>"></i><%= fld.folder_name %>
+                      </a>
+                    </summary>
+                    
+                    <div class="ms-3 border-start ps-2">
+                      <% (fld.items || []).forEach(item => { %>
+                      <div class="small py-1 text-truncate">
+                        <a href="/admin/collections?id=<%= coll.id %>&boxId=<%= bx.id %>&folderId=<%= fld.id %>&itemId=<%= item.id %>&view=item-details" 
+                           class="text-decoration-none tree-item-link <%= (locals.itemId && Number(itemId) === item.id) ? 'text-maroon fw-bold' : 'text-muted' %>">
+                          <i class="bi bi-file-earmark-text me-2"></i><%= item.title || item.file_name %>
+                        </a>
+                      </div>
+                      <% }) %>
+                    </div>
+                  </details>
+                  <% }) %>
+    
+                  <% (bx.items || []).forEach(item => { %>
+                  <div class="small py-1 text-truncate ps-2">
+                    <a href="/admin/collections?id=<%= coll.id %>&boxId=<%= bx.id %>&itemId=<%= item.id %>&view=item-details" 
+                       class="text-decoration-none tree-item-link <%= (locals.itemId && Number(itemId) === item.id) ? 'text-maroon fw-bold' : 'text-muted' %>">
+                      <i class="bi bi-file-earmark-text me-2 text-maroon opacity-50"></i><%= item.title || item.file_name %>
+                    </a>
+                  </div>
+                  <% }) %>
+                </div>
+              </details>
+              <% }) %>
+            </div>
+          </details>
+          <% }) %>
+        <% } else { %>
+          <p class="text-muted small ps-3">No collections found.</p>
+        <% } %>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="col-md-9 p-5 overflow-auto bg-light-subtle">
+      <!-- FLASH MESSAGES -->
+      <% if (locals.success_msg && success_msg.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i><%= success_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <% if (locals.error_msg && error_msg.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <section id="content-display">
+        <%# If no collections exist AND we aren't trying to add a new one, show placeholder %>
+        <% if ((!locals.collections || collections.length === 0) && view !== 'add-collection') { %>
+            <div class="text-center py-5">
+                <i class="bi bi-folder-x text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">No available details yet</h5>
+                <p class="text-secondary small">Start by adding a new collection from the sidebar.</p>
+                <a href="/admin/collections?view=add-collection" class="btn btn-maroon btn-sm mt-2">
+                    <i class="bi bi-plus-lg me-1"></i> Create Collection
+                </a>
+            </div>
+        <% } else { %>
+            <%# Map views to specific partials %>
+            <% if (view === 'collection_overview') { %> 
+                <%- include('./partials/_collection_overview') %> 
+            <% } else if (view === 'edit_collection') { %> 
+                <%- include('./partials/_edit_collection') %> 
+            <% } else if (view === 'box_details') { %> 
+                <%- include('./partials/_box_details') %> 
+            <% } else if (view === 'folder-details') { %> 
+                <%- include('./partials/_folder_details') %> 
+            <% } else if (view === 'item-details') { %> 
+                <%- include('./partials/_item_details') %> 
+            <% } else if (view === 'add-collection') { %> 
+                <%- include('./partials/_add_collection') %> 
+            <% } else if (view === 'add_box') { %> 
+                <%- include('./partials/_add_box') %> 
+            <% } else { %> 
+                <%- include('./partials/_empty_state') %> 
+            <% } %>
+        <% } %>
+      </section>
+    </main>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

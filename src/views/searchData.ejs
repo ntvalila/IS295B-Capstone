@@ -1,0 +1,184 @@
+<%- include('partials/header') %>
+
+<div class="mx-auto">
+
+  <div class="container mt-5 mb-3">
+    <h1 class="text-uppercase" style="color: maroon;"><strong>Search the Archives</strong></h1>
+    <p class="text-muted">You searched for <strong><%= query.searchTerm || '' %></strong>.</p>
+  <hr>
+  </div>
+
+<div class="container py-4 min-vh-100">
+  <form action="/search" method="GET" id="filterForm">
+
+    <div class="row">
+      <aside class="col-md-3">
+        <div class="card border-0 shadow-sm p-3" style="top: 20px;">
+          <h6 class="text-uppercase fw-bold text-muted small mb-3">Advance Search</h6>
+
+          <div class="input-group shadow-sm mb-4">
+          <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" name="searchTerm" class="form-control form-control-sm border-0" 
+                 placeholder="Search..." value="<%= query.searchTerm || '' %>">
+          <button class="btn btn-dark px-2" type="submit">Search</button>
+          </div>
+          
+          <label class="small fw-bold mb-2">Media Type</label>
+          <div class="mb-4">
+            <% Object.entries(mediumLabels).forEach(([id, name]) => { %>
+              <div class="form-check small mb-1">
+                <input class="form-check-input" type="checkbox" name="medium_id" value="<%= id %>" 
+                       id="m<%= id %>" onchange="this.form.submit()"
+                       <%= (selectedMediums || []).includes(String(id)) ? 'checked' : '' %>>
+                <label class="form-check-label" for="m<%= id %>"><%= name %></label>
+              </div>
+            <% }) %>
+          </div>
+
+          <label class="small fw-bold mb-2">Document Date</label>
+          <div class="mb-3">
+            <div class="mb-2">
+                <small class="text-muted d-block text-uppercase x-small fw-bold">From</small>
+                <input type="date" name="dateFrom" class="form-control form-control-sm" value="<%= query.dateFrom || '' %>">
+            </div>
+            <div>
+                <small class="text-muted d-block text-uppercase x-small fw-bold">To</small>
+                <input type="date" name="dateTo" class="form-control form-control-sm" value="<%= query.dateTo || '' %>">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-outline-secondary w-100 btn-sm mb-2">Apply Filters</button>
+          <a href="/search" class="btn btn-outline-secondary btn-sm w-100 text-decoration-none">Clear All</a>
+        </div>
+      </aside>
+
+      <main class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 style="color:maroon;">Search Results</h2>
+          <small class="text-muted">Showing <strong><%= items.length %></strong> records</small>
+        </div>
+
+        <div class="row g-3">
+          <% if (items.length > 0) { %>
+            <% items.forEach(item => { %>
+              <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm flex-row overflow-hidden" style="min-height: 200px;">
+                  
+                  <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center border-end" style="width: 150px; flex-shrink: 0;">
+                    <% if (item.file_type && item.file_type.includes('image')) { %>
+                        <img src="/search/preview/<%= item.id %>" 
+                             class="w-100 h-100" 
+                             style="object-fit: cover;" 
+                             alt="<%= item.title %>">
+                    <% } else if (item.file_type && item.file_type.includes('pdf')) { %>
+                        <div class="text-center text-danger">
+                            <i class="bi bi-file-earmark-pdf fs-1"></i>
+                            <div class="x-small fw-bold mt-1">PDF</div>
+                        </div>
+                    <% } else { %>
+                        <i class="bi bi-file-earmark text-muted fs-1 opacity-50"></i>
+                    <% } %>
+                  </div>
+
+                  <div class="card-body p-3 d-flex flex-column">
+                    <h6 class="fw-bold text-uppercase mb-1" style="text-decoration:none; color:maroon;">
+                        <a href="/search/details/<%= item.id %>" target="_blank" style="text-decoration:none; color:maroon;" class="text-decoration-none text-maroon card-title-link">
+                            <%= item.title %>
+                        </a>
+                    </h6>
+                    
+                    <p class="mb-2 text-muted" style="font-size: 0.75rem;">
+                        <strong>Location:</strong> <%= item.box_name %> / <%= item.folder_name %>
+                    </p>
+
+                    <p class="mb-2 text-muted" style="font-size: 0.75rem;">
+                        <strong>Medium Type:</strong>  <%= mediumLabels[item.medium_id] || 'Archive' %>
+                    </p>
+
+                    <div class="mt-auto pt-2">
+                        <div class="d-flex gap-2">
+                            <a href="/search/download/<%= item.id %>" class="btn btn-outline-secondary flex-grow-1">
+                              <i class="bi bi-download me-1"></i> Download
+                            </a>
+                            <a href="/search/details/<%= item.id %>" target="_blank" class="text-decoration-none text-maroon card-title-link">
+                              <button type="button" class="btn btn-outline-secondary px-2" 
+                                    onclick="openPreview('<%= item.id %>', '<%= item.title %>', '<%= item.file_type %>')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                          </a>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="col-12 text-center py-5 bg-white shadow-sm rounded">
+              <i class="bi bi-search fs-1 text-muted opacity-25"></i>
+              <p class="mt-3 text-muted fw-bold">No archival records found.</p>
+              <small>Try adjusting your search terms or filters.</small>
+            </div>
+          <% } %>
+        </div>
+      </main>
+    </div>
+  </form>
+</div>
+
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold" id="pTitle"></h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3 bg-light text-center" id="pBody">
+                </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+/**
+ * Handles the Quick View Modal
+ */
+function openPreview(id, title, type) {
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    const body = document.getElementById('pBody');
+    document.getElementById('pTitle').innerText = title;
+    
+    body.innerHTML = '<div class="p-5"><div class="spinner-border text-danger"></div></div>';
+    
+    const url = `/search/preview/${id}`;
+    
+    if (type.includes('image')) {
+        body.innerHTML = `<img src="${url}" class="img-fluid rounded shadow-sm" style="max-height: 75vh;">`;
+    } else if (type.includes('pdf')) {
+        body.innerHTML = `<iframe src="${url}" width="100%" height="600px" style="border:none;" class="rounded shadow-sm"></iframe>`;
+    } else {
+        body.innerHTML = `<div class="p-5 text-muted"><i class="bi bi-slash-circle fs-1 d-block mb-2"></i>Preview not available.</div>`;
+    }
+    
+    modal.show();
+}
+</script>
+
+<!-- <style>
+  /* Custom Theme Styles */
+  .btn-maroon { background-color: #5a1212; color: white; border: none; transition: 0.2s; }
+  .btn-maroon:hover { background-color: #3d0c0c; color: white; transform: translateY(-1px); }
+  .text-maroon { color: #5a1212; }
+  .x-small { font-size: 0.65rem; }
+  .card-title-link:hover { color: #8b0000 !important; text-decoration: underline !important; }
+  .form-check-input:checked { background-color: #5a1212; border-color: #5a1212; }
+  
+  /* Layout Adjustments */
+  .card { transition: box-shadow 0.3s ease; }
+  .card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; }
+  
+  /* Date Inputs styling */
+  input[type="date"] { font-size: 0.85rem; }
+</style> -->
+
+<%- include('partials/footer') %>

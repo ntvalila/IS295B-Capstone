@@ -1,0 +1,42 @@
+<%- include('partials/header', { title: 'Home' }) %>
+
+<div class="container-md mt-5 p-3">
+
+  <div class="container p-3">
+    <h2 class="text-center" style="color:maroon;">LOGIN</h2>
+  </div>
+  <div class="container p-2">
+    <p class="text-center">Do not have an account yet? Request <a href="/register" 
+      style="color:maroon;"
+      class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">here</a>.</p>
+  </div>
+
+    <% if (error) { %>
+    <div class="alert alert-danger py-2 w-75 mx-auto" role="alert">
+      <%= error %>
+    </div>
+    <% } %>
+    
+    <% if (success) { %>
+    <div class="alert alert-success py-2 w-75 mx-auto" role="alert">
+      <%= success %>
+    </div>
+    <% } %>
+    
+    <div class="container-sm w-75">
+    <form method="POST" action="/login">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username:</label>
+        <input type="text" class="form-control" name="username" placeholder="Username" required />
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
+        <input type="password" class="form-control" name="password" placeholder="Password" required />
+      </div>
+      <button type="submit" class="btn btn-outline-secondary">Login</button>
+    </form>
+  </div>
+
+</div>
+
+<%- include('partials/footer') %>

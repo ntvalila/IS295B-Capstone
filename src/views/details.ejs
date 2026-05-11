@@ -1,0 +1,78 @@
+<%- include('partials/header') %>
+
+<div class="container-fluid py-5 min-vh-100 mx-auto">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <a href="/search" class="text-maroon" style="text-decoration: none;"></a>
+                <button type="button" class="btn btn-outline-secondary mb-3"><i class="bi bi-arrow-bar-left"></i> Back to Search</button>
+            </a>
+            <ol class="breadcrumb"><span class="text-muted">PATH</span>
+                <li class="breadcrumb-item"></li>
+                <li class="breadcrumb-item"><%= item.box_name %></li>
+                <li class="breadcrumb-item"><%= item.folder_name %></li>
+                <li class="breadcrumb-item active"><%= item.title %></li>
+            </ol>
+        </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+        <h2 style="color:maroon;">You are viewing <strong><%= item.title %></strong>.</h2>
+        </div>
+    </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm overflow-hidden bg-white d-flex align-items-center justify-content-center" style="min-height: 600px;">
+                    <% if (item.file_type && item.file_type.includes('image')) { %>
+                        <img src="/search/preview/<%= item.id %>" class="img-fluid" style="max-height: 800px;" alt="<%= item.title %>">
+                    <% } else if (item.file_type && item.file_type.includes('pdf')) { %>
+                        <iframe src="/search/preview/<%= item.id %>" width="100%" height="800px" style="border:none;"></iframe>
+                    <% } else { %>
+                        <div class="text-center p-5">
+                            <i class="bi bi-file-earmark-lock text-muted opacity-25" style="font-size: 5rem;"></i>
+                            <p class="text-muted mt-3">Full preview not available for this format.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h2 class="fw-bold mb-3 small text-muted">Metadata</h2>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Item Title</h6>
+        <p class="small text-dark mb-4"><%= item.title %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Description</h6>
+        <p class="small text-dark mb-4"><%= item.description %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Creator</h6>
+        <p class="small text-dark mb-4"><%= item.creator %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Document Date</h6>
+        <p class="small text-dark mb-4"><%= item.document_date %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Extent</h6>
+        <p class="small text-dark mb-4"><%= item.extent %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Physical Medium</h6>
+        <p class="small text-dark mb-4"><%= mediumLabels[item.medium_id] %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Uploaded On</h6>
+        <p class="small text-dark mb-4"><%= item.created_at %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Last Updated</h6>
+        <p class="small text-dark mb-4"><%= item.updated_at %></p>
+
+                    <div class="mt-auto border-top pt-4">
+                        <a href="/search/download/<%= item.id %>" class="btn btn-maroon w-100 py-3 mb-3 shadow-sm">
+                            <i class="bi bi-download me-2"></i> Download Original File
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

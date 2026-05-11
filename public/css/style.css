@@ -1,0 +1,42 @@
+.index-bg {
+    background-image: url(../images/index-bg.gif);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    opacity:0.95;
+    -moz-opacity:0.45;
+}
+
+.index-font {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 2vw;
+}
+
+.georgia {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+
+/* Custom handwriting animation */
+.handwriting-effect {
+  font-family: 'Sofia', cursive;
+  overflow: hidden; /* Ensures text is hidden until animation */
+  border-right: .15em solid #FFDF00; /* The typewriter cursor */
+  white-space: nowrap; /* Keeps text on a single line */
+  margin: 0 auto;
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret .75s step-end infinite;
+}
+
+/* Typing Effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* Cursor Blink Effect */
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: orange; }
+}

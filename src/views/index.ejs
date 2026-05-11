@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUP Digital Archives</title>
+    
+    <!--CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="container-fluid vh-100 w-100 index-bg mx-auto d-flex justify-content-center align-items-center">
+
+<!--NAVBAR-->
+<div class="fixed-top">
+<nav class="navbar navbar-expand-lg bg-transparent text-white px-5 py-2 sticky-top">
+
+     <div class="container-fluid">
+
+        <a class="navbar-brand" href="/index" style="color:rgb(255, 255, 255);"><img src="/images/pup-logo.png" alt="Logo" style="height: 60px; width: auto;" class="d-inline-block mx-1"> Digital Archives</a>
+
+        <!-- NAVIGATION LINKS START HERE -->
+         
+            <ul class="nav justify-content-end nav-underline">
+                
+                <li class="nav-item">                    
+                    <a class="nav-link"
+                    href="/search"
+                    style="color:rgb(255, 255, 255);">
+                    <i class="bi bi-search"></i></a>
+                </li>
+                
+                <% if (user) { %>
+                <li class="nav-item">                    
+                    <a class="nav-link"
+                    href="/home"
+                    style="color:rgb(255, 255, 255);">
+                    Dashboard</a>
+                </li>
+
+                <% } if (locals.type == 1) { %>
+                
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="#"
+                    style="color:rgb(255, 255, 255);">User Management</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="admin/collections"
+                    style="color:rgb(255, 255, 255);">Collection Management</a>
+                </li>
+                
+                <% } if (user) { %>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="/logout"
+                    style="color:rgb(255, 255, 255);">Logout</a>
+                </li>
+                
+                <% } if (!user) { %>
+                
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="/login"
+                    style="color:rgb(255, 255, 255);">Login</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="/register"
+                    style="color:rgb(255, 255, 255);">Register</a>
+                </li>
+
+                <% } %>
+                
+            </ul>
+        
+    <!-- END OF NAV LINKS -->
+
+            <!-- <ul class="nav justify-content-end nav-underline">
+                
+                <li class="nav-item">                    
+                    <a class="nav-link"
+                    href="/search"
+                    style="color:rgb(255, 255, 255);">
+                    <i class="bi bi-search"></i></a>
+                </li>
+
+                
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="/login"
+                    style="color: rgb(255, 255, 255);">Login</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                    href="/register"
+                    style="color:rgb(255, 255, 255);"
+                    >Register</a>
+                </li>
+
+            </ul> -->
+
+     </div>
+    </nav>
+</div>
+<!--END NAVBAR-->
+
+    <div class="mx-auto">
+            <h1 style="font-family:Sofia, sans-serif;" class="text-center text-white index-font">The Polytechnic University of the Philippines<br />
+            Digital Archives<h1>
+            <p class="text-center georgia h6 mt-3" style="color:#FFDF00; letter-spacing: 0.15em;">A LEADING POLYTECHNIC UNIVERSITY IN ASIA</p>
+            
+            <div class="container-fluid mt-4">
+                <form method="GET" action="/search" class="d-flex">
+                    <input class="form-control me-2 georgia" type="search" name="searchTerm" placeholder="I am looking for..." aria-label="Search">
+                    <button class="btn btn-outline-light  georgia" type="submit">Search</button>
+                </form>
+            </div>
+
+    </div>
+
+</div>
+
+<!--FOOTER-->
+<footer
+          class="text-center text-lg-start"
+          style="background-color: #ffffff; color:maroon;"
+          >
+
+    <!-- Section: Links  -->
+    <section class="">
+      <div class="container text-center text-md-start mt-5">
+        <!-- Grid row -->
+        <div class="row mt-3">
+          <!-- Grid column -->
+          <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+            <!-- Content -->
+            <h6 class="text-uppercase fw-bold">PUP</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #ffffff; height: 2px"
+                />
+            <p>
+              A leading Polytechnic University in Asia.
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Online Services</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #ffffff; height: 2px"
+                />
+            <p>
+              <a href="#!" style="color:maroon;">PUP SINTA</a>
+            </p>
+            <p>
+              <a href="#!" style="color:maroon;">PUP WebMail</a>
+            </p>
+            <p>
+              <a href="#!" style="color:maroon;">PUP iApply</a>
+            </p>
+            <p>
+              <a href="#!" style="color:maroon;">SIS for Students</a>
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+            <!-- Links -->
+            <h6 style="color:maroon;" class="text-uppercase fw-bold">Quick Links</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #ffffff; height: 2px"
+                />
+            <p>
+              <a href="#!" style="color:maroon;">About PUP</a>
+            </p>
+            <p>
+              <a href="#!" style="color:maroon;">PUP University Library</a>
+            </p>
+            <p>
+              <a href="#!" style="color:maroon;">Campuses</a>
+            </p>
+            <p>
+              <a href="#!" style="color:maroon;">Academic Programs</a>
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Contact</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: maroon; height: 2px"
+                />
+            <p><i class="fas fa-home mr-3"></i> Anonas Street, Sta. Mesa, Manila, Philippines 1016</p>
+            <p><i class="fas fa-envelope mr-3"></i> library@pup.edu.ph </p>
+            <p><i class="fas fa-phone mr-3"></i> (+63 2) 5335-1PUP (5335-1787)</p>
+            <p><i class="fas fa-print mr-3"></i> or 5335-1777</p>
+          </div>
+          <!-- Grid column -->
+        </div>
+        <!-- Grid row -->
+      </div>
+    </section>
+    <!-- Section: Links  -->
+
+    <!-- Copyright -->
+    <div
+         class="text-center p-3"
+         style="background-color: rgb(255, 255, 255)"
+         >
+      © 2026
+      <a class="maroon" href="#" style="color:maroon; text-decoration: none;"
+         >Nadeshya Valila</a
+        >
+    </div>
+    <!-- Copyright -->
+  </footer>

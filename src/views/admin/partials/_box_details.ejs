@@ -1,0 +1,453 @@
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb small">
+    <li class="breadcrumb-item"><span class=text-muted><strong>PATH</strong> |</span>
+      Collection:<a href="/admin/collections?id=<%= selectedCollection.id %>&view=collection_overview" class="text-maroon text-decoration-none">
+        <%= selectedCollection.name %>
+      </a>
+    </li>
+    <li class="breadcrumb-item active text-muted">Box: <%= box.box_name %></li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 style="color:maroon;">Box: <strong><%= box.box_name %></strong></h2>
+    
+  </div>
+  <div class="d-flex gap-2">
+    <div class="btn-group shadow-sm">
+      <button class="btn btn-sm btn-outline-secondary px-3" 
+              data-bs-toggle="modal" 
+              data-bs-target="#editBoxModal"  %>'>
+        <i class="bi bi-pencil-square me-1"></i> Edit Box
+      </button>
+      <button class="btn btn-sm btn-outline-danger px-3" 
+              data-bs-toggle="modal" 
+              data-bs-target="#deleteBoxModal">
+        <i class="bi bi-trash me-1"></i> Delete Box
+      </button>
+    </div>
+    <div class="btn-group shadow-sm">
+      <button class="btn btn-sm btn-outline-maroon px-3" data-bs-toggle="modal" data-bs-target="#addFolderModal">
+        <i class="bi bi-folder-plus me-1"></i> New Folder
+      </button>
+      <button class="btn btn-sm btn-maroon px-3" data-bs-toggle="modal" data-bs-target="#addItemModal">
+        <i class="bi bi-file-earmark-plus me-1"></i> Add Item to Box
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- Box Contents Table -->
+   
+  <% 
+  const mediumLabels = {
+    1: 'Document',
+    2: 'Book',
+    3: 'Image',
+    4: 'Pamphlet',
+    5: 'Magazine',
+    6: 'Audio/Video'
+  };
+ %>
+
+<div class="container grid">
+  <div class="row g-4">
+
+    <div class="col-lg-8">
+
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+          <table id="boxTable" class="table table-striped" style="width: 100%">
+            <thead class="bg-light">
+              <tr class="small text-uppercase text-muted">
+                <th class="ps-4 py-3" style="width: 80px;">Order No.</th>
+                <th class="ps-4 py-3">Folder Name / Item Title</th>
+                <th class="ps-4 py-3">Document Date</th>
+                <th class="ps-4 py-3">Type / Medium</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (box.folders.length > 0 || box.items.length > 0) { %>
+              <% box.folders.forEach(folder => { %>
+              <tr>
+                <td class="ps-4 text-muted small">#<%= folder.folder_physical_order %></td>
+                <td>
+                  <i class="bi bi-folder2 text-warning me-2 fs-5"></i>
+                  <a href="/admin/collections?id=<%= selectedCollection.id %>&boxId=<%= box.id %>&folderId=<%= folder.id %>&view=folder-details" 
+                  class="fw-bold text-dark text-decoration-none">
+                    <%= folder.folder_name %>
+                  </a>
+                </td>
+                <td></td>
+                <td><span class="badge bg-light text-dark border">Folder</span></td>                
+              </tr>
+                <% }) %>
+                <% box.items.forEach(item => { %>
+              <tr>
+                <td class="ps-4 text-muted small">#<%= item.item_physical_order %></td>
+                <td>
+                  <a href="/admin/collections?id=<%= selectedCollection.id %>&boxId=<%= box.id %>&itemId=<%= item.item_id %>&view=item-details" 
+                  class="fw-bold text-dark text-decoration-none">
+                  <i class="bi bi-file-earmark-text text-maroon me-2 fs-5"></i><%= item.item_title %>
+                  </a>
+                </td>
+                <td><%= item.item_document_date %></td>
+                <td><span class="badge bg-light text-dark border">Archival Item</span> | <span class="badge bg-light text-dark border"><%= mediumLabels[item.item_medium_id] %></span></td>
+              </tr>
+                <% }) %>
+                <% } else { %>
+              <tr><td colspan="5" class="text-center py-5 text-muted">Empty box.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+      </div></div></div>
+
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Restriction Level</h6>
+        <p class="small text-dark mb-4"><%= box.restriction_id == 0 ? 'Public' : (box.restriction_id == 1 ? 'Confidential' : 'Restricted') %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Box Name</h6>
+        <p class="small text-dark mb-4"><%= box.box_name %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Box Description</h6>
+        <p class="small text-dark mb-4"><%= box.box_description %></p>
+ 
+        </div></div>
+
+  </div></div>
+
+<!-- UPDATE BOX DETAILS MODAL -->
+<div class="modal fade" id="editBoxModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Update Box Details</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form action="/admin/boxes/update" method="POST">
+        <input type="hidden" name="box_id" id="modal_edit_box_id" />
+        <input
+          type="hidden"
+          name="collection_id"
+          value="<%= selectedCollection.id %>"
+        />
+        <input
+          type="hidden"
+          name="restriction_id"
+          id="modal_hidden_restriction_id"
+        />
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Box Name</label>
+            <input
+              type="text"
+              name="name"
+              id="modal_edit_box_name"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="small fw-bold">Box Number</label>
+              <input
+                type="text"
+                name="box_number"
+                id="modal_edit_box_number"
+                class="form-control"
+              />
+            </div>
+            <div class="col-6">
+              <label class="small fw-bold">Display Order</label>
+              <input
+                type="number"
+                name="display_order"
+                id="modal_edit_box_display_order"
+                class="form-control"
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Restriction</label>
+            <select id="modal_edit_box_restriction_id" class="form-select">
+              <option value="1">Public</option>
+              <option value="2">Confidential</option>
+              <option value="3">Restricted</option>
+            </select>
+          </div>
+          <div class="mb-0">
+            <label class="small fw-bold">Description</label>
+            <textarea
+              name="description"
+              id="modal_edit_box_description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="submit" class="btn btn-dark px-4">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal fade" id="deleteBoxModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold small">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/boxes/delete" method="POST">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger display-4 mb-3"></i>
+          <p class="mb-0">Are you sure you want to delete <strong><%= box.box_name %></strong>?</p>
+          <p class="text-muted small">All folders and items inside this box will be affected.</p>
+          
+          <input type="hidden" name="box_id" value="<%= box.id %>">
+          <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>">
+        </div>
+        <div class="modal-footer border-0 pt-0 justify-content-center">
+          <button type="button" class="btn btn-light btn-sm px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger btn-sm px-4">Delete Permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FOLDER MODAL -->
+
+<% 
+  /* 
+     1. Get the parent's level string.
+     2. Define 'Locked' as either 'Restricted' OR 'Confidential'.
+  */
+  const parentLevel = box.security_level; 
+  const isParentLocked = (parentLevel === 'Confidential' || parentLevel === 'Restricted');
+  
+  // Mapping for the default selection
+  let defaultId = "1"; // Public
+  if (parentLevel === 'Restricted') defaultId = "2";
+  if (parentLevel === 'Confidential') defaultId = "3";
+
+  // Calculate suggested physical order (next in sequence)
+  const nextOrder = (box.folders && box.folders.length > 0) 
+    ? Math.max(...box.folders.map(f => f.physical_order || 0)) + 1 
+    : 1;
+%>
+
+<div class="modal fade" id="addFolderModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title m-1">Add Folder in <strong><%= selectedCollection.name %> / <%= box.box_name %> </strong></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/folders/add" method="POST">
+        <input type="hidden" name="box_id" value="<%= boxId %>">
+        <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>">
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Folder Name</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g., Memos, Letters, Speeches..." required>
+          </div>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="small fw-bold">Physical Order</label>
+              <input type="number" name="physical_order" class="form-control" value="<%= (box.folders.length + 1) %>">
+            </div>
+            <div class="col-6">
+              <label class="small fw-bold">Restriction Level</label>
+              
+              <% if (isParentLocked) { %>
+              <!-- DISABLED STATE: Parent is Restricted or Confidential -->
+                <select class="form-control form-select bg-secondary-subtle border-0 text-muted" disabled>
+                  <option value="2" <%= parentLevel === 'Restricted' ? 'selected' : '' %>>Restricted</option>
+                  <option value="3" <%= parentLevel === 'Confidential' ? 'selected' : '' %>>Confidential</option>
+                </select>
+        
+              <!-- Crucial: The actual value sent to the database -->
+                <input type="hidden" name="restriction_id" value="<%= defaultId %>" />
+        
+                <div class="form-text mt-2 text-danger" style="font-size: 0.75rem">
+                <i class="bi bi-lock-fill me-1"></i>
+                 This folder will automatically inherit the box's restriction level.
+                </div>
+
+                <% } else { %>
+                <!-- ENABLED STATE: Parent is Public -->
+                <select class="form-control form-select bg-secondary-subtle border-0 text-muted" disabled>
+                  <option value="1" selected>Public</option>
+                  <option value="2">Restricted</option>
+                  <option value="3">Confidential</option>
+                </select>
+                <div class="form-text mt-2" style="font-size: 0.75rem">
+                  <i class="bi bi-unlock-fill me-1"></i>
+                  This folder will automatically inherit the box's restriction level.
+                </div>
+                <% } %>
+
+            </div>
+          </div>
+          <div class="mb-0">
+            <label class="small fw-bold">Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark px-4">Create Folder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ITEM MODAL (Directly in Box) -->
+<!-- ADD ITEM MODAL -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-maroon">Add Item to Box to <%= selectedCollection.name %> / <%= box.box_name %></h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form
+        action="/admin/items/add"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>" />
+        <input type="hidden" name="box_id" value="<%= boxId %>" />
+        <input type="hidden" name="folder_id" value="" />
+        <input type="hidden" name="restriction_id" value="<%= box.box_restriction_id %>" />
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Title</label>
+            <input type="text" name="title" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Creator</label>
+            <input type="text" name="creator" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Description</label>
+            <textarea
+              name="description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-4">
+              <label class="small fw-bold">Physical Order</label>
+              <input
+                type="number"
+                name="physical_order"
+                class="form-control"
+              />
+            </div>
+            <div class="col-4">
+              <label class="small fw-bold">Medium</label>
+              <select name="medium_id" class="form-select">
+                <option value="1">Document</option>
+                <option value="2">Book</option>
+                <option value="3">Image</option>
+                <option value="4">Pamphlet</option>
+                <option value="5">Magazine</option>
+              </select>
+            </div>
+
+            <div class="col-4">
+              <label class="small fw-bold">Extent</label>
+              <input
+                type="text"
+                name="extent"
+                class="form-control"
+              />
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold small">Upload File</label>
+            <input type="file" name="item_file" class="form-control" />
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold small">Document Date</label>
+            <input type="date" name="document_date" class="form-control" />
+          </div>
+        </div></div>
+        <div class="modal-footer border-0">
+          <button type="submit" class="btn btn-maroon text-white px-4">
+            Save Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- <script>
+  const editBoxModalElement = document.getElementById("editBoxModal");
+  const editBoxModal = new bootstrap.Modal(editBoxModalElement);
+
+  document.querySelectorAll('.edit-box-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const boxData = JSON.parse(this.getAttribute('data-box'));
+      
+      // Standard population
+      document.getElementById("edit_box_id").value = boxData.id;
+      document.getElementById("edit_box_name").value = boxData.box_name || "";
+      document.getElementById("edit_box_number").value = boxData.box_number || "";
+      document.getElementById("edit_box_description").value = boxData.description || boxData.box_description || "";
+      document.getElementById("edit_box_display_order").value = boxData.physical_order || 0;
+      
+      const restField = document.getElementById("edit_box_restriction_id");
+      const hiddenField = document.getElementById("hidden_restriction_id");
+      
+      if (restField && hiddenField) {
+        const val = boxData.restriction_id ?? boxData.box_restriction_id ?? 0;
+        
+        restField.value = val.toString();
+        hiddenField.value = val.toString();
+
+        const boxIsRestricted = Number(val) > 0;
+
+        if (collectionIsLocked || boxIsRestricted) {
+          restField.disabled = true;
+          restField.classList.add('bg-light');
+        } else {
+          restField.disabled = false;
+          restField.classList.remove('bg-light');
+        }
+      }
+      
+      editBoxModal.show();
+    });
+  });
+
+  // Sync change to hidden field
+  document.getElementById("edit_box_restriction_id").addEventListener('change', function() {
+    const hiddenField = document.getElementById("hidden_restriction_id");
+    if (hiddenField) {
+      hiddenField.value = this.value;
+    }
+  });
+</script>
+</script> -->

@@ -1,0 +1,52 @@
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item">
+            <a href="/admin/collections?id=<%= selectedCollection.id %>&view=collection_overview" class="text-maroon text-decoration-none">
+                <%= selectedCollection.name %>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">Edit Collection</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 style="color:maroon">Edit Collection: <strong><%= selectedCollection.name %></strong></h3>
+    <span class="text-muted small">ID: #<%= selectedCollection.id %></span>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+    <form action="/admin/collections/update" method="POST"> 
+        <input type="hidden" name="id" value="<%= selectedCollection.id %>">
+        
+        <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-muted">Name</label>
+            <input type="text" name="name" class="form-control bg-light border-0 fw-bold py-2" value="<%= selectedCollection.name %>" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-muted">Physical Location</label>
+            <input type="text" name="location" class="form-control bg-light border-0 py-2" value="<%= selectedCollection.location %>" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-muted">Description</label>
+            <textarea name="description" class="form-control bg-light border-0" rows="6"><%= selectedCollection.description %></textarea>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted text-uppercase">Restriction Level</label>
+                <select name="restriction_id" class="form-select bg-light border-0">
+                    <option value="1" <%= selectedCollection.security_level === 'Public' ? 'selected' : '' %>>Public</option>
+                    <option value="2" <%= selectedCollection.security_level === 'Confidential' ? 'selected' : '' %>>Confidential</option>
+                    <option value="3" <%= selectedCollection.security_level === 'Restricted' ? 'selected' : '' %>>Restricted</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 border-top pt-4">
+            <a href="/admin/collections?id=<%= selectedCollection.id %>&view=collection_overview" class="btn btn-light px-4">Discard Changes</a>
+            <button type="submit" class="btn btn-maroon px-5 shadow-sm">Update Collection</button>
+        </div>
+    </form>
+</div>

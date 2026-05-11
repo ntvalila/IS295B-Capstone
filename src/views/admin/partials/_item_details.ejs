@@ -1,0 +1,263 @@
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><span class=text-muted><strong>PATH</strong> |</span>   
+        Collection:<a href="/admin/collections?id=<%= selectedCollection.id %>&view=collection_overview" class="text-maroon text-decoration-none">
+          <%= selectedCollection.name %>
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        Box:<a href="/admin/collections?id=<%= selectedCollection.id %>&boxId=<%= box.id %>&view=box_details" class="text-maroon text-decoration-none">
+          <%= box.box_name %>
+        </a>
+      </li>
+      <li class="breadcrumb-item active text-muted"> Folder: <%= folder.folder_name %></li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="color:maroon;">Item: <strong><%= item.title %></strong></h2>
+    </div>
+
+  <div class="d-flex gap-2">
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-sm btn-outline-secondary px-3 edit-folder-btn" 
+                data-folder="<%- JSON.stringify(folder) %>" type="button">
+          <i class="bi bi-pencil me-1"></i> Edit Item
+        </button>
+        <button class="btn btn-sm btn-outline-danger px-3" 
+              data-bs-toggle="modal" 
+              data-bs-target="#deleteConfirmModal">
+        <i class="bi bi-trash me-1"></i> Delete Item
+      </button>
+    </div>
+  </div>
+  </div>
+
+  <!-- View Item -->
+<div class="container grid">
+<div class="row g-4">
+  
+  <div class="col">
+      <div class="card border-0 shadow-sm p-4 mb-3">
+        <h6 class="fw-bold mb-3 small text-muted">Digital File</h6>
+        <div class="preview-container bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border" style="min-height: 350px;">
+          <% if (item.file_name) { 
+               const ext = item.file_name.split('.').pop().toLowerCase();
+               const filePath = '/uploads/items/' + item.file_name;
+          %>
+            <% if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) { %>
+              <img src="<%= filePath %>" class="img-fluid" style="max-height: 500px;" alt="Preview">
+            <% } else if (ext === 'pdf') { %>
+              <iframe src="<%= filePath %>" width="100%" height="400px" style="border: none;"></iframe>
+            <% } else { %>
+              <div class="text-center p-3">
+                <i class="bi bi-file-earmark-text fs-1 text-muted"></i>
+                <p class="small text-muted mt-2"><%= item.file_name %></p>
+                <a href="<%= filePath %>" class="btn btn-sm btn-outline-maroon" download>Download to View</a>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="text-center text-muted p-5">
+              <i class="bi bi-cloud-slash fs-1 opacity-25"></i>
+              <p class="small mt-2">No digital file attached</p>
+            </div>
+          <% } %>
+        </div>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small mt-4">File Type</h6>
+        <p class="small text-dark mb-4"><%= item.file_type %>, <%= item.file_size %> bytes</p>
+      </div>
+    </div>
+
+    <% 
+  const mediumLabels = {
+    1: 'Document',
+    2: 'Book',
+    3: 'Image',
+    4: 'Pamphlet',
+    5: 'Magazine',
+    6: 'Audio/Video'
+  };
+ %>
+
+  <div class="col">
+        <div class="card border-0 shadow-sm p-4">
+
+        <h2 class="fw-bold mb-3 small text-muted">Metadata</h2>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Item Title</h6>
+        <p class="small text-dark mb-4"><%= item.title %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Description</h6>
+        <p class="small text-dark mb-4"><%= item.description %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Creator</h6>
+        <p class="small text-dark mb-4"><%= item.creator %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Document Date</h6>
+        <p class="small text-dark mb-4"><%= item.document_date %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Extent</h6>
+        <p class="small text-dark mb-4"><%= item.extent %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Physical Location</h6>
+        <p class="small text-dark mb-4"><%= selectedCollection.location %> - B<%= box.box_physical_order %> - F<%= folder.folder_physical_order %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Physical Medium</h6>
+        <p class="small text-dark mb-4"><%= mediumLabels[item.medium_id] %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Uploaded On</h6>
+        <p class="small text-dark mb-4"><%= item.created_at %></p>
+
+        <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Last Updated</h6>
+        <p class="small text-dark mb-4"><%= item.updated_at %></p>
+
+        <hr>
+
+        <p class="small text-muted mb-2">This item is <%= item.restriction_id == 0 ? 'Public' : (item.restriction_id == 1 ? 'Confidential' : 'Restricted') %>. Update the parent box to change its restriction level.</p>
+    </div></div>
+
+  </div></div></div>
+
+
+  <!-- Edit item -->
+  <div class="row g-4">
+    <div class="col-md-7">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+          <div>
+            
+          </div>
+        </div>
+  
+        <form action="/admin/items/update" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="item_id" value="<%= item.id %>">
+          <input type="hidden" name="collection_id" value="<%= selectedCollection.id %>">
+          <input type="hidden" name="box_id" value="<%= item.box_id %>">
+  
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="small fw-bold">Title</label>
+              <input type="text" name="title" value="<%= item.title %>" class="form-control bg-light border-0" required>
+            </div>
+            <div class="col-md-6">
+              <label class="small fw-bold">Creator</label>
+              <input type="text" name="creator" value="<%= item.creator %>" class="form-control bg-light border-0">
+            </div>
+            <div class="col-md-6">
+              <label class="small fw-bold">Medium ID</label>
+              <input type="number" name="medium_id" value="<%= item.medium_id %>" class="form-control bg-light border-0">
+            </div>
+            <div class="col-md-6">
+              <label class="small fw-bold">Extent</label>
+              <input type="text" name="extent" value="<%= item.extent %>" class="form-control bg-light border-0">
+            </div>
+            <div class="col-md-6">
+              <label class="small fw-bold">Restriction Level</label>
+              <select name="restriction_id" class="form-select bg-light border-0">
+                <option value="0" <%= item.restriction_id == 0 ? 'selected' : '' %>>Public</option>
+                <option value="1" <%= item.restriction_id == 1 ? 'selected' : '' %>>Confidential</option>
+                <option value="2" <%= item.restriction_id == 2 ? 'selected' : '' %>>Restricted</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="small fw-bold">Description</label>
+              <textarea name="description" class="form-control bg-light border-0" rows="4"><%= item.description %></textarea>
+            </div>
+            <div class="col-12">
+              <label class="small fw-bold text-maroon">Update Attachment</label>
+              <input type="file" name="item_file" class="form-control bg-light border-0">
+              <p class="x-small text-muted mt-1 italic">Leave empty to keep current file.</p>
+            </div>
+            <div class="col-12 text-end mt-4">
+              <button type="submit" class="btn btn-maroon px-5 shadow-sm">Save Changes</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+    <div class="col-md-5">
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h6 class="fw-bold mb-3 small text-uppercase text-maroon">Digital Preview</h6>
+        <div class="preview-container bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border" style="min-height: 350px;">
+          <% if (item.file_name) { 
+               const ext = item.file_name.split('.').pop().toLowerCase();
+               const filePath = '/uploads/items/' + item.file_name;
+          %>
+            <% if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) { %>
+              <img src="<%= filePath %>" class="img-fluid" style="max-height: 400px;" alt="Preview">
+            <% } else if (ext === 'pdf') { %>
+              <iframe src="<%= filePath %>" width="100%" height="400px" style="border: none;"></iframe>
+            <% } else { %>
+              <div class="text-center p-3">
+                <i class="bi bi-file-earmark-text fs-1 text-muted"></i>
+                <p class="small text-muted mt-2"><%= item.file_name %></p>
+                <a href="<%= filePath %>" class="btn btn-sm btn-outline-maroon" download>Download to View</a>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="text-center text-muted p-5">
+              <i class="bi bi-cloud-slash fs-1 opacity-25"></i>
+              <p class="small mt-2">No digital file attached</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold small">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/items/delete" method="POST">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger display-4 mb-3"></i>
+          <p class="mb-0">Are you sure you want to delete <br /><strong><%= item.item_title %></strong>?</p>
+          <p class="text-muted small">This item belongs to <% if (folder.id !== null) { %><%= folder.folder_name %><% } %> <%= box.box_name %> <%= selectedCollection.name %></p>
+          
+          <input type="hidden" name="collectionId" value="<%= selectedCollection.id %>">
+          <input type="hidden" name="boxId" value="<%= box.id %>">
+          <input type="hidden" name="folderId" value="<%= folder.id %>">
+          <input type="hidden" name="item_id" value="<%= item.id %>">
+        </div>
+        <div class="modal-footer border-0 pt-0 justify-content-center">
+          <button type="button" class="btn btn-light btn-sm px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger btn-sm px-4">Delete Permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+ 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalElement = document.getElementById('deleteConfirmModal');
+    
+        if (!modalElement) return;
+    
+        modalElement.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+    
+            if (!button) return;
+    
+            const itemId = button.getAttribute('data-item-id');
+            const itemTitle = button.getAttribute('data-item-title');
+            const collectionId = button.getAttribute('data-collection-id');
+    
+            const nameDisplay = document.getElementById('modal-item-name-display');
+            const deleteLink = document.getElementById('modal-confirm-delete-link');
+    
+            if (nameDisplay) nameDisplay.textContent = itemTitle;
+            if (deleteLink) {
+                deleteLink.href = `/admin/items/delete/${itemId}?collectionId=${collectionId}`;
+            }
+        });
+    });
+    </script>

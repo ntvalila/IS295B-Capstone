@@ -1,0 +1,85 @@
+<%- include('partials/header', { title: 'Register' }) %>
+
+<div class="container-md mt-5 p-3">
+
+  <div class="container p-3">
+    <h2 class="text-center" style="color:maroon;">REGISTER</h2>
+  </div>
+  <div class="container p-2">
+    <p class="text-center">
+      Already have an account? Login <a href="/login" 
+      style="color:maroon;"
+      class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">here</a>.</p>
+  </div>
+
+    <% if (error) { %>
+    <div class="alert alert-danger py-2 w-75 mx-auto" role="alert"><%= error %></div>
+    <% } %> 
+    
+    <% if (success) { %>
+    <p style="color: rgb(0, 119, 46)"><%= success %></p>
+    <% } %>
+
+    <div class="container-sm w-75">
+    <form method="POST" action="/register">
+
+      <div class="mb-3">
+      <label for="username">Username:</label>
+      <input type="text" class="form-control" name="username" placeholder="Username" required />
+      </div>
+
+        <div class="mb-3">
+          <label for="first_name">First Name:</label>
+          <input type="text" class="form-control" name="first_name" placeholder="First Name" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="last_name">Last Name:</label>
+          <input type="text" class="form-control" name="last_name" placeholder="Last Name" required />
+        </div>
+
+      <div class="mb-3">
+      <label for="email">Email:</label>
+      <input type="email" class="form-control" name="email" placeholder="example@email.com" required />
+      </div>
+
+      <div class="mb-3 dropdown">
+      <label for="user_type">User Category:</label>
+      <select id="user_type" class="form-control form-select" name="user_type" placeholder="" required>
+        <option value="0">- Select user category -</option>
+        <option value="4">Student</option>
+        <option value="3">Faculty</option>
+        <option value="2">Admin</option>
+        <option value="1">Archivist</option>
+        <option value="5">Guest</option>
+      </select>
+      </div>
+
+      <div class="mb-3">
+      <label for="id_number">ID Number:</label>
+      <input type="text" class="form-control" name="id_number" placeholder="202x-xxxxx"/>
+      </div>
+
+      <div class="mb-3">
+      <label for="password">Password:</label>
+      <input type="password" class="form-control" name="password" placeholder="••••••••••••" required />
+      </div>
+
+      <div class="mb-3">
+      <label for="confirmPassword">Confirm Password:</label>
+      <input
+        type="password"
+        class="form-control"
+        name="confirmPassword"
+        placeholder="••••••••••••"
+        required
+      />
+      </div>
+
+      <button type="submit" class="btn btn-outline-secondary">Register</button>
+    </form>
+    </div>
+    
+
+  </div>
+<%- include('partials/footer') %>

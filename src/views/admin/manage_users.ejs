@@ -1,0 +1,159 @@
+<%- include('../partials/header') %>
+
+<% 
+// Helper to map numeric roles to labels
+const userType = {
+    1: { label: 'Archivist' },
+    2: { label: 'Admin' },
+    3: { label: 'Faculty' },
+    4: { label: 'Student' }
+};
+%>
+
+<div class="container mt-3 pt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: maroon;">
+            User Management
+        </h2>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="userAdminTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pending">
+                Pending Approvals <span class="badge bg-danger ms-1"><%= users.filter(u => u.status === 0).length %></span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#active">
+                Active Users <span class="badge bg-warning ms-1"><%= users.filter(u => u.status === 1).length %></span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#restricted">
+                Blocked / Expired <span class="badge bg-dark ms-1"><%= users.filter(u => u.status === 3).length %></span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content border-start border-end border-bottom p-4 bg-white shadow-sm rounded-bottom">
+        
+        <!-- Tab 1: Pending -->
+        <div class="tab-pane fade show active" id="pending">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID Number</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Requested Role</th> <!-- New Column -->
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.filter(u => u.status === 0).forEach(user => { %>
+                        <tr>
+                            <td><code><%= user.id_number %></code></td>
+                            <td><strong>@<%= user.username %></strong></td>
+                            <td><%= user.first_name %> <%= user.last_name %></td>
+                            <td>
+                                <span class="<%= userType[user.user_type].class %>">
+                                    <%= userType[user.user_type].label %>
+                                </span>
+                            </td>
+                            <td>
+                                <form action="/admin/users/update-status" method="POST" class="d-inline">
+                                    <input type="hidden" name="userId" value="<%= user.id %>">
+                                    <button name="status" value="1" class="btn btn-sm btn-success px-3">Approve</button>
+                                    <button name="status" value="2" class="btn btn-sm btn-outline-danger px-3">Decline</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 2: Active -->
+        <div class="tab-pane fade" id="active">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Role Management</th>
+                            <th class="text-end">Account Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.filter(u => u.status === 1).forEach(user => { %>
+                        <tr>
+                            <td><strong>@<%= user.username %></strong></td>
+                            <td><%= user.first_name %> <%= user.last_name %></td>
+                            <td>
+                                <form action="/admin/users/update-role" method="POST" class="d-flex gap-2">
+                                    <input type="hidden" name="userId" value="<%= user.id %>">
+                                    <select name="user_type" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="1" <%= user.user_type === 1 ? 'selected' : '' %>>Archivist</option>
+                                        <option value="2" <%= user.user_type === 2 ? 'selected' : '' %>>Admin</option>
+                                        <option value="3" <%= user.user_type === 3 ? 'selected' : '' %>>Faculty</option>
+                                        <option value="4" <%= user.user_type === 4 ? 'selected' : '' %>>Student</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="text-end">
+                                <form action="/admin/users/update-status" method="POST" class="d-inline">
+                                    <input type="hidden" name="userId" value="<%= user.id %>">
+                                    <button name="status" value="3" class="btn btn-sm btn-warning text-white">Block</button>
+                                    <button name="status" value="4" class="btn btn-sm btn-secondary">Expire</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Restricted -->
+        <div class="tab-pane fade" id="restricted">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.filter(u => u.status === 3 || u.status === 4).forEach(user => { %>
+                        <tr>
+                            <td>@<%= user.username %></td>
+                            <td><%= user.first_name %> <%= user.last_name %></td>
+                            <td>
+                                <span class="badge <%= user.status === 3 ? 'bg-danger' : 'bg-dark' %>">
+                                    <%= user.status === 3 ? 'Blocked' : 'Expired' %>
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <form action="/admin/users/update-status" method="POST">
+                                    <input type="hidden" name="userId" value="<%= user.id %>">
+                                    <button name="status" value="1" class="btn btn-sm btn-outline-primary">Restore Access</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

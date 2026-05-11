@@ -1,0 +1,131 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h2 style="color:maroon;">
+      Collection: <strong> <%= selectedCollection.name %> </strong>
+    </h2>
+  </div>
+  <div class="d-flex gap-2">
+    <a
+      href="/admin/collections?view=edit_collection&id=<%= selectedCollection.id %>"
+      class="btn btn-outline-dark btn-sm px-3"
+    >
+      <i class="bi bi-pencil me-1"></i> Edit Collection
+    </a>
+    <button
+      type="button"
+      class="btn btn-outline-danger btn-sm px-3"
+      data-bs-toggle="modal"
+      data-bs-target="#deleteModal"
+    >
+      <i class="bi bi-trash3 me-1"></i> Delete Collection
+    </button>
+    <a
+      href="/admin/collections?view=add_box&id=<%= selectedCollection.id %>"
+      class="btn btn-maroon btn-sm px-3"
+    >
+      <i class="bi bi-plus-lg me-1"></i> New Box
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="fw-bold mb-0 text-maroon">Boxes within this Collection</h6>
+      </div>
+      <div class="table-responsive">
+        <table id="collectionTableBoxes" class="table table-hover align-middle">
+          <thead>
+            <tr class="small text-uppercase">
+              <th class="py-3">Order No.</th>
+              <th class="ps-4 py-3">Name</th>
+              <th class="py-3">Contents</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% (selectedCollection.boxes || []).forEach(box => { %>
+            <tr>
+              <td class="ps-4 text-muted small">#<%= box.box_physical_order %></td>
+              <td class="ps-4 <%= (locals.boxId && Number(boxId) === bx.id && view === 'box_details') ? 'bg-light' : '' %>">
+                <a href="/admin/collections?id=<%= selectedCollection.id %>&boxId=<%= box.id %>&view=box_details" 
+                     class="d-block w-100 py-1 px-2 text-decoration-none text-reset <%= (locals.boxId && Number(boxId) === bx.id) ? 'text-maroon fw-bold' : 'text-secondary' %>">
+                <i class="bi bi-archive-fill text-maroon me-2"></i>
+                <span class="fw-bold"><%= box.box_name %></span></a>
+              </td>
+              <td>
+                <span class="badge rounded-pill bg-light text-dark border"
+                  ><%= (box.items || []).length %> Files</span
+                >
+                <span class="badge rounded-pill bg-light text-dark border"
+                  ><%= (box.folders || []).length %> Folders</span
+                >
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-white border-top py-3 mt-auto">
+        <span class="small text-muted"
+          >Total Boxes: <%= selectedCollection.boxes.length %></span
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm p-4 h-100">
+
+      <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Restriction Level</h6>
+      <p class="small text-dark mb-4"><%= selectedCollection.security_level %></p>
+
+      <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Description</h6>
+      <p class="small text-dark mb-4"><%= selectedCollection.description %></p>
+
+      <h6 class="fw-bold text-maroon mb-2 text-uppercase small">Location</h6>
+      <p class="small text-dark mb-4"><%= selectedCollection.location %></p>
+
+      <hr class="opacity-25" />
+      <div class="mt-3">
+        <label class="d-block small fw-bold text-muted text-uppercase"
+          >Date Created</label
+        >
+        <span class="small text-dark"
+          ><%= selectedCollection.date_created %></span
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-body p-4 text-center">
+        <i class="bi bi-exclamation-triangle text-danger fs-1 mb-3"></i>
+        <h5 class="fw-bold">Confirm Deletion</h5>
+        <p class="text-muted small">
+          Are you sure you want to permanently delete
+          <strong><%= selectedCollection.name %></strong>?
+        </p>
+        <form action="/admin/collections/delete" method="POST">
+          <input type="hidden" name="id" value="<%= selectedCollection.id %>" />
+          <div class="d-flex gap-2 justify-content-center mt-4">
+            <button
+              type="button"
+              class="btn btn-light px-4"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-danger px-4 shadow-sm">
+              Yes, Delete
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
