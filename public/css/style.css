@@ -40,3 +40,12 @@
   from, to { border-color: transparent }
   50% { border-color: orange; }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in-section {
+  animation: fadeIn 1.5s ease-in-out;
+}
