@@ -1,5 +1,10 @@
 // public/js/global.js
 $(document).ready(function () {
+    const collectionTable = $('#collectionTableBoxes');
+    if (collectionTable.length && !$.fn.DataTable.isDataTable(collectionTable[0])) {
+        collectionTable.DataTable();
+    }
+
     const boxTable = $('#boxTable');
     if (boxTable.length && !$.fn.DataTable.isDataTable(boxTable[0])) {
         boxTable.DataTable();
@@ -24,24 +29,4 @@ $(document).ready(function () {
     if (blockUserTable.length && !$.fn.DataTable.isDataTable(blockUserTable[0])) {
         blockUserTable.DataTable();
     }
-
-    const collectionTableBoxes = $('#collectionTableBoxes');
-    if (collectionTableBoxes.length && !$.fn.DataTable.isDataTable(collectionTableBoxes[0])) {
-        $('#collectionTableBoxes').DataTable({
-            paging: true,
-            searching: true,
-            info: true,
-            layout: {
-                topStart: 'search',
-                topEnd: null
-            },
-            language: {
-                search: "",
-                searchPlaceholder: "Search boxes..."
-            },
-            columnDefs: [{ orderable: false, targets: 3 }],
-            order: [[0, "asc"]]
-        });
-    }
-
 });

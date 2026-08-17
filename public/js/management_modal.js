@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("edit_folder_id").value = btn.getAttribute("data-id");
             document.getElementById("edit_folder_name").value = btn.getAttribute("data-name");
             document.getElementById("edit_folder_description").value = btn.getAttribute("data-description");
-            document.getElementById("edit_physical_order").value = btn.getAttribute("data-physical-order");
+            document.getElementById("edit_folder_physical_order").value = btn.getAttribute("data-physical-order");
         });
     }
 
@@ -56,16 +56,36 @@ document.addEventListener("DOMContentLoaded", function () {
             editBoxModal.addEventListener("show.bs.modal", function (event) {
                 const btn = event.relatedTarget;
                 if (!btn) return;
+
+                const rest = btn.getAttribute("data-restriction") || "1";
+
                 document.getElementById("modal_edit_box_id").value = btn.getAttribute("data-id");
                 document.getElementById("modal_edit_box_name").value = btn.getAttribute("data-name");
                 document.getElementById("modal_edit_box_number").value = btn.getAttribute("data-number");
                 document.getElementById("modal_edit_box_display_order").value = btn.getAttribute("data-order");
                 document.getElementById("modal_edit_box_description").value = btn.getAttribute("data-description");
-                const rest = btn.getAttribute("data-restriction") || "1";
-                document.getElementById("modal_edit_box_restriction_id").value = rest;
+
+                const restrictionSelect = document.getElementById("modal_edit_box_restriction_id");
+                const restrictionHidden = document.getElementById("modal_hidden_restriction_id");
+
+                restrictionSelect.value = rest;
+                restrictionHidden.value = rest; // ← always sync on open
+
+                // Sync on manual change
+                restrictionSelect.onchange = function () {
+                    restrictionHidden.value = this.value;
+                };
+
+                const collectionRestriction = btn.getAttribute("data-collection-restriction-id");
+                if (collectionRestriction === 'Confidential' || collectionRestriction === 'Restricted') {
+                    restrictionSelect.disabled = true;
+                } else {
+                    restrictionSelect.disabled = false;
+                }
             });
         }
     }
+
 
     // --- 4. Logic for Item Details Page Delete (Your existing code) ---
     if (view === "item-details") {
